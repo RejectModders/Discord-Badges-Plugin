@@ -1,50 +1,89 @@
-/**
- * @name UserBadges
- * @description Displays all available Discord badges on your profile
- * @version 1.0.0
- * @source https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js
- * @author RejectModders
- */
- 
-module.exports = class UserBadges {
-   constructor() {
-      this.stylesheet = `
-         .userBadges-badgeContainer {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 8px;
-         }
+//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js","requiredLibraries":["ZeresPluginLibrary"]}*//
 
-         .userBadges-badge {
-            width: 24px;
-            height: 24px;
-            margin-right: 8px;
-         }
-      `;
-   }
+class UserBadges {
+    constructor() {
+        this.badges = {};
+        this.loaded = false;
+        this.API_URL = 'https://discord.com/api/v9';
+    }
 
-   start() {
-      const badgeContainer = $(".profileBadgeList-3p_sFQ");
-      if (!badgeContainer) return;
+    async start() {
+        await this.loadLibrary();
+        this.fetchBadges();
+    }
 
-      BdApi.injectCSS("userBadges-style", this.stylesheet);
+    async loadLibrary() {
+        try {
+            this.ZLibrary = window.ZeresPluginLibrary;
+            this.badgesModule = this.ZLibrary.WebpackModules.getByProps('getBadges');
+            this.accountDetailsModule = this.ZLibrary.WebpackModules.getByProps('getToken', 'getUserSettings');
+        } catch (e) {
+            console.error('Error while loading ZeresPluginLibrary', e);
+            this.ZLibrary = null;
+        }
+    }
 
-      const currentUser = BdApi.findModuleByProps("getCurrentUser").getCurrentUser();
+    fetchBadges() {
+        if (!this.ZLibrary || !this.accountDetailsModule) {
+            setTimeout(() => this.fetchBadges(), 1000);
+            return;
+        }
 
-      const badges = BdApi.findModuleByProps("getAllFlairData").getAllFlairData()
-         .filter(f => f.type === "BADGE");
+        const { id } = this.accountDetailsModule.getUserSettings();
+        if (!id) {
+            console.warn('Unable to fetch user badges - user ID not found');
+            return;
+        }
 
-      if (!badges || !badges.length) return;
+        const token = this.accountDetailsModule.getToken();
+        const headers = { 'Authorization': token };
+        const url = `${this.API_URL}/users/${id}/profile`;
+        const fetchOptions = { method: 'GET', headers: headers };
 
-      const userBadges = badges.filter(badge => currentUser.flags & badge.flag);
+        fetch(url, fetchOptions)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.premium_since) {
+                    this.badges['Nitro'] = { 'name': 'Nitro', 'description': 'Discord Nitro Subscriber', 'image': 'https://discord.com/assets/5ccabf62108d5a8074ddd95af2211727.svg' };
+                }
 
-      const badgeElements = userBadges.map(badge => `<img class="userBadges-badge" src="${badge.url}">`).join("");
+                this.badgesModule.getBadges().forEach((badge) => {
+                    if (data.profile_badges.includes(badge.id)) {
+                        this.badges[badge.name] = { 'name': badge.name, 'description': badge.description, 'image': badge.image_url };
+                    }
+                });
 
-      badgeContainer.append(`<div class="userBadges-badgeContainer">${badgeElements}</div>`);
-   }
+                this.loaded = true;
+                this.updateBadges();
+            })
+            .catch((error) => {
+                console.error('Unable to fetch user badges', error);
+            });
+    }
 
-   stop() {
-      BdApi.clearCSS("userBadges-style");
-   }
-};
+    updateBadges() {
+        const userPopout = this.ZLibrary.DiscordModules.UserPopout;
+        this.ZLibrary.Patcher.after(userPopout, 'default', (_, [props], res) => {
+            if (!props.user || !props.user.id || !this.loaded) {
+                return;
+            }
+
+            const userBadges = Object.keys(this.badges).map((key) => {
+                return `<span class="badge" style="background-image: url(${this.badges[key].image});" aria-label="${this.badges[key].description}">${this.badges[key].name}</span>`;
+            }).join('');
+
+            const userInfo = res.props.children.props.children[1];
+            if (userInfo && userInfo.props && userInfo.props.children) {
+                const userFlags = userInfo.props.children[0];
+                if (userFlags && userFlags.props && userFlags.props.children) {
+                    userFlags.props.children = `${userBadges} ${userFlags.props.children}`;
+                }
+            }
+        });
+    }
+
+    stop() {
+        const userPopout = this.ZLibrary.DiscordModules.UserPopout;
+        this.ZLibrary.Patcher.unpatch(userPopout, 'default');
+    }
+}
