@@ -81,9 +81,12 @@ class UserBadges {
             }
         });
     }
-
     stop() {
-        const userPopout = this.ZLibrary.DiscordModules.UserPopout;
-        this.ZLibrary.Patcher.unpatch(userPopout, 'default');
+        if (this.badgesPluginInitialized) {
+            const userPopout = BdApi.findModuleByProps('UserPopout');
+            if (userPopout) {
+                BdApi.Patcher.unpatch(userPopout.default, 'userBadges');
+            }
+        }
     }
 }
