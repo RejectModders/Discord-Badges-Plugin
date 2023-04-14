@@ -12,10 +12,10 @@
     'use strict';
 
     const badges = {
-        "Early Supporter": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/early_supporter.png?raw=true",
-        "Bug Hunter": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/bug_hunter.png?raw=true",
-        "Nitro Booster": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/boosting_discord.png?raw=true",
-        "Verified Bot Developer": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/bot_dev.png?raw=true"
+        "Early Supporter": "https://github.com/Debuggingss/discord-badges/raw/main/pngs_named/early_supporter.png",
+        "Bug Hunter": "https://github.com/Debuggingss/discord-badges/raw/main/pngs_named/bug_hunter.png",
+        "Nitro Booster": "https://github.com/Debuggingss/discord-badges/raw/main/pngs_named/nitro_booster.png",
+        "Verified Bot Developer": "https://github.com/Debuggingss/discord-badges/raw/main/pngs_named/verified_bot_developer.png"
     };
     
     const updateBadges = () => {
@@ -24,27 +24,28 @@
             return;
         }
         
-        const username = userPopout.querySelector('[class^="nameTag"]').textContent;
-        const userBadges = userPopout.querySelector('[class^="userBadges"]');
+        const usernameTag = userPopout.querySelector('[class^="nameTag"]');
+        const username = usernameTag.textContent;
+        const userBadgesContainer = userPopout.querySelector('[class^="userBadges"]');
         
         // Remove existing badges
-        while (userBadges.firstChild) {
-            userBadges.removeChild(userBadges.firstChild);
+        while (userBadgesContainer.firstChild) {
+            userBadgesContainer.removeChild(userBadgesContainer.firstChild);
         }
         
         // Add new badges
         for (const badgeName in badges) {
             if (badges.hasOwnProperty(badgeName)) {
-                const badgeImage = badges[badgeName];
+                const badgeImageURL = badges[badgeName];
                 const badge = document.createElement('div');
                 badge.style.display = 'inline-block';
                 badge.style.marginLeft = '5px';
                 badge.style.marginRight = '5px';
                 badge.innerHTML = `
-                    <div class="badge ${badgeName.replace(/ /g, '-').toLowerCase()}" style="background-image: url(${badgeImage});"></div>
+                    <div class="badge ${badgeName.replace(/ /g, '-').toLowerCase()}" style="background-image: url(${badgeImageURL});"></div>
                     <div class="tooltip tooltip-top">${badgeName}</div>
                 `;
-                userBadges.appendChild(badge);
+                userBadgesContainer.appendChild(badge);
             }
         }
     };
