@@ -1,4 +1,4 @@
-//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://github.com/RejectModders/Discord-Badges-Plugin/blob/main/UserBadges.plugin.js"}*//
+//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js"}*//
 
 var UserBadges = (() => {
     'use strict';
