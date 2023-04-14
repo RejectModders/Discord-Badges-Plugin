@@ -1,48 +1,42 @@
 //META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js"}*//
 
-var UserBadges = (() => {
-    'use strict';
+class UserBadges {
+    getName() {
+        return "UserBadges";
+    }
 
-    const badges = {
-        "Early Supporter": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/early_supporter.png?raw=true",
-        "Bug Hunter": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/bug_hunter.png?raw=true",
-        "Nitro Booster": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/boosting_discord.png?raw=true",
-        "Verified Bot Developer": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/bot_dev.png?raw=true"
-    };
+    getDescription() {
+        return "Displays all available Discord badges on your profile";
+    }
 
-    const updateBadges = () => {
-        const userPopout = document.querySelector('[class^="userPopout"]');
-        if (!userPopout) {
-            return;
-        }
+    getVersion() {
+        return "1.0.0";
+    }
 
-        const username = userPopout.querySelector('[class^="nameTag"]').textContent;
-        const userBadges = userPopout.querySelector('[class^="userBadges"]');
+    getAuthor() {
+        return "RejectModders";
+    }
 
-        // Remove existing badges
-        while (userBadges.firstChild) {
-            userBadges.removeChild(userBadges.firstChild);
-        }
+    start() {
+        this.loadBadges();
+    }
 
-        // Add new badges
-        for (const badgeName in badges) {
-            if (badges.hasOwnProperty(badgeName)) {
-                const badgeImage = badges[badgeName];
-                const badge = document.createElement('div');
-                badge.style.display = 'inline-block';
-                badge.style.marginLeft = '5px';
-                badge.style.marginRight = '5px';
-                badge.innerHTML = `
-                    <div class="badge ${badgeName.replace(/ /g, '-').toLowerCase()}" style="background-image: url(${badgeImage});"></div>
-                    <div class="tooltip tooltip-top">${badgeName}</div>
-                `;
-                userBadges.appendChild(badge);
+    stop() {
+        $('.userBadges').remove();
+    }
+
+    loadBadges() {
+        $.getJSON('https://discordapp.com/api/guilds/0/widget.json', (data) => {
+            const badges = data.features;
+            const userBadges = $('.userBadges');
+            if (userBadges.length == 0) {
+                $('.profileBadgeList').append('<div class="userBadges"></div>');
             }
-        }
-    };
-
-    // Update badges when user popout opens
-    document.addEventListener('click', () => {
-        setTimeout(updateBadges, 500);
-    });
-})();
+            userBadges.empty();
+            for (const badge of badges) {
+                const badgeName = badge.toLowerCase().replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+                userBadges.append(`<div class="profileBadge ${badge}" style="background-image: url(https://discordapp.com/assets/${badge}.svg)" aria-label="${badgeName} Badge"></div>`);
+            }
+        });
+    }
+}
