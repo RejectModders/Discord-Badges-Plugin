@@ -1,12 +1,4 @@
 //META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://github.com/RejectModders/Discord-Badges-Plugin/blob/main/Test-1.js"}*//
-// ==UserScript==
-// @name         Discord Badges Plugin
-// @description  Adds custom badges to your Discord profile using Better Discord
-// @version      1
-// @author       Your Name
-// @match        https://discord.com/*
-// @grant        none
-// ==/UserScript==
 
 var UserBadges = (() => {
     'use strict';
@@ -17,21 +9,21 @@ var UserBadges = (() => {
         "Nitro Booster": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/boosting_discord.png?raw=true",
         "Verified Bot Developer": "https://github.com/Debuggingss/discord-badges/blob/master/pngs_named/bot_dev.png?raw=true"
     };
-    
+
     const updateBadges = () => {
         const userPopout = document.querySelector('[class^="userPopout"]');
         if (!userPopout) {
             return;
         }
-        
+
         const username = userPopout.querySelector('[class^="nameTag"]').textContent;
         const userBadges = userPopout.querySelector('[class^="userBadges"]');
-        
+
         // Remove existing badges
         while (userBadges.firstChild) {
             userBadges.removeChild(userBadges.firstChild);
         }
-        
+
         // Add new badges
         for (const badgeName in badges) {
             if (badges.hasOwnProperty(badgeName)) {
@@ -48,7 +40,7 @@ var UserBadges = (() => {
             }
         }
     };
-    
+
     // Update badges when user popout opens
     document.addEventListener('click', () => {
         setTimeout(updateBadges, 500);
