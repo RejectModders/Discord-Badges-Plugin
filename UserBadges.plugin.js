@@ -1,4 +1,6 @@
-//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"Your Name","version":"1.0.0","source":"https://example.com/UserBadges.plugin.js"}*//
+//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js"}*//
+
+const $ = global.ZeresPluginLibrary ? global.ZeresPluginLibrary.require('jquery') : require('jquery');
 
 class UserBadges {
     getName() {
@@ -14,7 +16,7 @@ class UserBadges {
     }
 
     getAuthor() {
-        return "Your Name";
+        return "RejectModders";
     }
 
     start() {
