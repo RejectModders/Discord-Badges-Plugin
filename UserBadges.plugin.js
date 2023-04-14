@@ -1,44 +1,50 @@
-//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js"}*//
+/**
+ * @name UserBadges
+ * @description Displays all available Discord badges on your profile
+ * @version 1.0.0
+ * @source https://raw.githubusercontent.com/RejectModders/Discord-Badges-Plugin/main/UserBadges.plugin.js
+ * @author RejectModders
+ */
+ 
+module.exports = class UserBadges {
+   constructor() {
+      this.stylesheet = `
+         .userBadges-badgeContainer {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+         }
 
-const $ = global.ZeresPluginLibrary ? global.ZeresPluginLibrary.require('jquery') : require('jquery');
+         .userBadges-badge {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+         }
+      `;
+   }
 
-class UserBadges {
-    getName() {
-        return "UserBadges";
-    }
+   start() {
+      const badgeContainer = $(".profileBadgeList-3p_sFQ");
+      if (!badgeContainer) return;
 
-    getDescription() {
-        return "Displays all available Discord badges on your profile";
-    }
+      BdApi.injectCSS("userBadges-style", this.stylesheet);
 
-    getVersion() {
-        return "1.0.0";
-    }
+      const currentUser = BdApi.findModuleByProps("getCurrentUser").getCurrentUser();
 
-    getAuthor() {
-        return "RejectModders";
-    }
+      const badges = BdApi.findModuleByProps("getAllFlairData").getAllFlairData()
+         .filter(f => f.type === "BADGE");
 
-    start() {
-        this.loadBadges();
-    }
+      if (!badges || !badges.length) return;
 
-    stop() {
-        $('.userBadges').remove();
-    }
+      const userBadges = badges.filter(badge => currentUser.flags & badge.flag);
 
-    loadBadges() {
-        $.getJSON('https://discordapp.com/api/guilds/0/widget.json', (data) => {
-            const badges = data.features;
-            const userBadges = $('.userBadges');
-            if (userBadges.length == 0) {
-                $('.profileBadgeList').append('<div class="userBadges"></div>');
-            }
-            userBadges.empty();
-            for (const badge of badges) {
-                const badgeName = badge.toLowerCase().replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
-                userBadges.append(`<div class="profileBadge ${badge}" style="background-image: url(https://discordapp.com/assets/${badge}.svg)" aria-label="${badgeName} Badge"></div>`);
-            }
-        });
-    }
-}
+      const badgeElements = userBadges.map(badge => `<img class="userBadges-badge" src="${badge.url}">`).join("");
+
+      badgeContainer.append(`<div class="userBadges-badgeContainer">${badgeElements}</div>`);
+   }
+
+   stop() {
+      BdApi.clearCSS("userBadges-style");
+   }
+};
