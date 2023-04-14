@@ -1,4 +1,4 @@
-//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://github.com/RejectModders/Discord-Badges-Plugin"}*//
+//META{"name":"UserBadges","description":"Displays all available Discord badges on your profile","author":"RejectModders","version":"1.0.0","source":"https://github.com/RejectModders/Discord-Badges-Plugin/blob/main/Test-1.js"}*//
 // ==UserScript==
 // @name         Discord Badges Plugin
 // @description  Adds custom badges to your Discord profile using Better Discord
