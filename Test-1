@@ -8,7 +8,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
+var UserBadges = (() => {
     'use strict';
 
     const badges = {
@@ -25,11 +25,11 @@
         }
         
         const username = userPopout.querySelector('[class^="nameTag"]').textContent;
-        const userBadgesContainer = userPopout.querySelector('[class^="userBadges"]');
+        const userBadges = userPopout.querySelector('[class^="userBadges"]');
         
         // Remove existing badges
-        while (userBadgesContainer.firstChild) {
-            userBadgesContainer.removeChild(userBadgesContainer.firstChild);
+        while (userBadges.firstChild) {
+            userBadges.removeChild(userBadges.firstChild);
         }
         
         // Add new badges
@@ -44,7 +44,7 @@
                     <div class="badge ${badgeName.replace(/ /g, '-').toLowerCase()}" style="background-image: url(${badgeImage});"></div>
                     <div class="tooltip tooltip-top">${badgeName}</div>
                 `;
-                userBadgesContainer.appendChild(badge);
+                userBadges.appendChild(badge);
             }
         }
     };
